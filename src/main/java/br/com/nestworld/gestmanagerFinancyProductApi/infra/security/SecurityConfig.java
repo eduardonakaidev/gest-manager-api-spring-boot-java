@@ -21,6 +21,7 @@ import br.com.nestworld.gestmanagerFinancyProductApi.infra.security.filters.Secu
 public class SecurityConfig {
     @Autowired
     SecurityFilter securityFilter;
+    
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         return httpSecurity
