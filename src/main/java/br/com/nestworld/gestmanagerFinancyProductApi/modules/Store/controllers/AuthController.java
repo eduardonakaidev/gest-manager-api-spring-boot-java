@@ -33,7 +33,7 @@ public class AuthController {
 
     @PostMapping("/auth")
     public ResponseEntity<Object> AuthStore(@RequestBody @Valid AuthRequestDTO reqAuth){
-        var emailPassword = new UsernamePasswordAuthenticationToken(reqAuth.email(),reqAuth.password());
+       var emailPassword = new UsernamePasswordAuthenticationToken(reqAuth.email(),reqAuth.password());
         var auth = this.authenticationManager.authenticate(emailPassword);
         var token = tokenService.generateToken((StoreEntity)auth.getPrincipal());
         return ResponseEntity.ok(new AuthReponseDTO(token));
@@ -50,7 +50,7 @@ public class AuthController {
         storeEntity.setRoles(RolesEntity.USER);
         this.storeRepository.save(storeEntity);
 
-      
+    
         return ResponseEntity.ok().build();
     }
 
