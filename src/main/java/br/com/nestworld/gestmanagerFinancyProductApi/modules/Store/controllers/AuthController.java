@@ -50,10 +50,8 @@ public class AuthController {
         storeEntity.setRoles(RolesEntity.USER);
         this.storeRepository.save(storeEntity);
 
-        var emailPassword = new UsernamePasswordAuthenticationToken(body.email(),body.password());
-        var auth = this.authenticationManager.authenticate(emailPassword);
-        var token = tokenService.generateToken((StoreEntity)auth.getPrincipal());
-        return ResponseEntity.ok(new AuthReponseDTO(token));
+      
+        return ResponseEntity.ok().build();
     }
 
     
