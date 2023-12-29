@@ -31,9 +31,14 @@ public class SecurityFilter extends OncePerRequestFilter {
         if(token != null){
             var login = tokenService.validateToken(token);
             UserDetails user = storeRepository.findByEmail(login);
-
+            if (user != null) {
             var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
             SecurityContextHolder.getContext().setAuthentication(authentication);
+            }else{
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.getWriter().write("Autenticação falhou: Usuário não encontrado");
+                response.getWriter().flush();
+            }
         }
         filterChain.doFilter(request, response);
     }
