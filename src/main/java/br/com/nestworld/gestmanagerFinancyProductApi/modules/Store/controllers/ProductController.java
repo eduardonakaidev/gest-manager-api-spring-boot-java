@@ -18,6 +18,7 @@ import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.GetByCate
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.GetByNameProductDTO;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.ProductCreateRequestDTO;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.entities.ProductEntity;
+import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.http.middleware.verifyPriceFormat;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.repositories.ProductRepository;
 import jakarta.validation.Valid;
 
@@ -30,17 +31,50 @@ public class ProductController {
 
     @PostMapping("/create")
     public ResponseEntity<Object> createProduct(@RequestBody @Valid ProductCreateRequestDTO body) {
+        
         ProductEntity productAlreadyExists = this.productRepository.findByName(body.name());
+        // verificando se o produto ja foi criado anteriormente
         if (productAlreadyExists == null) {
+            String priceRegex = body.price();
+            // Verifica se a string tem pelo menos dois caracteres
+            if (verifyPriceFormat.isNumeric(priceRegex)) {
+                // Verifica se a string tem pelo menos dois caracteres
+                if (priceRegex.length() >= 2) {
+                    // Obtém os dois últimos caracteres
+                    String ultimosDoisNumeros = priceRegex.substring(priceRegex.length() - 2);
+    
+                    // Obtém a parte da string excluindo os dois últimos caracteres
+                    String parteInicial = priceRegex.substring(0, priceRegex.length() - 2);
+    
+                    // Adiciona um ponto antes dos dois últimos números
+                    priceRegex = parteInicial + "." + ultimosDoisNumeros;
+    
+           
+                } else {
+                  return ResponseEntity.badRequest().body("A string price deve ter pelo menos dois caracteres. Exemplo : 0000 para ficar 00.00");
+                }
+            } else {
+                System.out.println("A string deve conter apenas números.");
+            }
+            String stockverify = "12345";
+            if (!verifyPriceFormat.isInteger(stockverify)) {
+                // Realiza as operações necessárias, se desejado
+                
+                return ResponseEntity.badRequest().body("A string stock não contém apenas números inteiros."+ stockverify);
+            } else {
+             //continua o codigo por so conter numeros inteiros
+       
+             // repassa todas informações para o produto
             ProductEntity productEntity = new ProductEntity();
             productEntity.setName(body.name());
             productEntity.setCategory(body.category());
             productEntity.setDescription(body.description());
-            productEntity.setPrice(body.price());
-            productEntity.setStock(body.stock());
+            productEntity.setPrice(priceRegex);
+            productEntity.setStock(stockverify);
+            // salva o produto
             var result = this.productRepository.save(productEntity);
             return ResponseEntity.ok().body(result);
-
+            }
         }
         return ResponseEntity.badRequest().body(productAlreadyExists);
 
@@ -121,24 +155,7 @@ public class ProductController {
         return ResponseEntity.ok().body(listaSemDuplicatas);
     }
 
-    // @PutMapping("/updateProduct/{productId}")
-    // public ResponseEntity<Object> updateProduct(@PathVariable UUID productId,@RequestBody UpdateProductDTO req) {
-    //     Optional<ProductEntity> productExists =  this.productRepository.findById(productId);
-
-    //     ProductEntity prdEntityU = productExists.orElse(null);
-
-    //     if(prdEntityU == null ){
-    //         return ResponseEntity.badRequest().body("Produto não existe");
-    //     }
-    //     ProductEntity productUpdated = new ProductEntity();
-    //     productUpdated.setName(req.name().toString());
-    //     productUpdated.setUrlPhotoProduct(req.urlPhotoProduct().toString());
-    //     productUpdated.setDescription(req.description().toString());
-    //     productUpdated.setCategory(req.category().toString());
-    //     productUpdated.setPrice(req.price().orElseThrow().longValue());
-    //     productUpdated.setStock(req.stock().orElseThrow());
-        
-    //     prdEntityU = this.productRepository.save(null);
-    //     return ResponseEntity.ok().body("Produto atualizado com sucesso");
-    // }
 }
+
+
+ 

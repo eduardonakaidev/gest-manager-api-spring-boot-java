@@ -52,7 +52,7 @@ public class AuthController {
             return ResponseEntity.badRequest().body("email ja registrado");
         }
         String passwordHashed = new BCryptPasswordEncoder().encode(body.password());
-
+        
         StoreEntity storeEntity = new StoreEntity(body.cnpj(),body.name(),body.email(),passwordHashed);
         storeEntity.setRoles(RolesEntity.USER);
         this.storeRepository.save(storeEntity);

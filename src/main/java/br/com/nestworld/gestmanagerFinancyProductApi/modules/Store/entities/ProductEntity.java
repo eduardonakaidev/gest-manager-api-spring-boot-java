@@ -39,10 +39,10 @@ public class ProductEntity {
     private String category;
 
     
-    private long price;
+    private String price;
 
     
-    private int stock;
+    private String stock;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
