@@ -56,7 +56,7 @@ public class ProductController {
             } else {
                 System.out.println("A string deve conter apenas números.");
             }
-            String stockverify = "12345";
+            String stockverify = body.stock();
             if (!verifyPriceFormat.isInteger(stockverify)) {
                 // Realiza as operações necessárias, se desejado
                 
