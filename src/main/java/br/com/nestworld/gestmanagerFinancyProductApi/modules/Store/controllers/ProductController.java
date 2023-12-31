@@ -3,13 +3,20 @@ package br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.controllers;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,6 +27,7 @@ import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.ProductCr
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.entities.ProductEntity;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.http.middleware.verifyPriceFormat;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.repositories.ProductRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 @RestController
@@ -153,6 +161,47 @@ public class ProductController {
             }
         }
         return ResponseEntity.ok().body(listaSemDuplicatas);
+    }
+    @PutMapping("/")
+    @Transactional
+    public ResponseEntity<Object> updateProductById(@RequestBody @Valid ProductEntity body){
+        Optional<ProductEntity> product = this.productRepository.findById(body.getId());
+        if(product.isPresent()){
+            ProductEntity productEntity = new ProductEntity(product.get().getId(),product.get().getName(),product.get().getUrlPhotoProduct(),product.get().getDescription(),product.get().getCategory(),
+            product.get().getPrice(),product.get().getStock(),product.get().getCreatedAt());
+            if(!body.getName().isBlank()){
+                productEntity.setName(body.getName());
+            }
+            if(!body.getUrlPhotoProduct().isBlank()){
+                productEntity.setUrlPhotoProduct(body.getUrlPhotoProduct());
+            }
+             if(!body.getCategory().isBlank()){
+                productEntity.setCategory(body.getCategory());
+            }
+             if(!body.getDescription().isBlank()){
+                productEntity.setDescription(body.getDescription());
+            }
+             if(!body.getPrice().isBlank()){
+                productEntity.setPrice(body.getPrice());
+            }
+             if(!body.getStock().isBlank()){
+                productEntity.setStock(body.getStock());
+            }
+            return ResponseEntity.status(HttpStatus.OK).body(productEntity);
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Object> delete(@PathVariable(value = "id") UUID id){
+        Optional<ProductEntity> productExists = this.productRepository.findById(id);
+        if(productExists.isPresent()){
+            this.productRepository.delete(productExists.get());
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("id invalido // produto não encontrado");
+        }
     }
 
 }

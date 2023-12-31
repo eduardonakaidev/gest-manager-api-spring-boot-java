@@ -16,4 +16,5 @@ public interface ProductRepository extends JpaRepository<ProductEntity,UUID>{
     ProductEntity findByName(String name);
     Optional<ProductEntity> findById(UUID id);
     
+    
 }
