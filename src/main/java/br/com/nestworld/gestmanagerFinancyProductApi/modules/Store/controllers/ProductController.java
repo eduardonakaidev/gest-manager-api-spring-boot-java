@@ -43,26 +43,24 @@ public class ProductController {
     ProductEntity productAlreadyExists = this.productRepository.findByName(body.name());
     // verificando se o produto ja foi criado anteriormente
     if(productAlreadyExists==null)
-    { // verificando se o usuario nao ta passando uma string com espaços em branco exemplo: "    " 
-        body.name().trim();
-        body.category().trim();
-        body.description().trim();
+    { 
+        // repassa todas informações para o produto
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setName(body.name().trim());
+        productEntity.setCategory(body.category().trim());
+        productEntity.setDescription(body.description().trim());
+        productEntity.setPrice(body.price());
+        productEntity.setStock(body.stock());
+        
+// verificando se o usuario nao ta passando uma string com espaços em branco exemplo: "    " 
+     
         if(body.name().isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("nome esta em branco ou null");
 
         }if(body.category().isBlank()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("categoria esta em branco ou null");
         }
-        if(body.description().isBlank()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("description esta em branco ou null");
-        }
-        // repassa todas informações para o produto
-        ProductEntity productEntity = new ProductEntity();
-        productEntity.setName(body.name());
-        productEntity.setCategory(body.category());
-        productEntity.setDescription(body.description());
-        productEntity.setPrice(body.price());
-        productEntity.setStock(body.stock());
+
         // salva o produto
         var result = this.productRepository.save(productEntity);
         return ResponseEntity.ok().body(result);
