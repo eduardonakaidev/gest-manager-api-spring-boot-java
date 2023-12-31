@@ -154,8 +154,7 @@ public class ProductController {
         Optional<ProductEntity> product = this.productRepository.findById(body.getId());
         System.out.println(product);
         if(product.isPresent()){
-            ProductEntity productEntity = new ProductEntity(product.get().getId(),product.get().getName(),product.get().getUrlPhotoProduct(),product.get().getDescription(),product.get().getCategory(),
-            product.get().getPrice(),product.get().getStock(),product.get().getCreatedAt());
+            ProductEntity productEntity = product.get();
             if(!body.getName().isBlank()){
                 productEntity.setName(body.getName());
             }
@@ -177,7 +176,7 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.OK).body(productEntity);
         }
         else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("produto não encontrado ,verifique o id passado no parametro");
         }
     }
 
