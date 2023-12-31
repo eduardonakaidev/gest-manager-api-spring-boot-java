@@ -150,10 +150,11 @@ public class ProductController {
         return ResponseEntity.ok().body(listaSemDuplicatas);
     }
 
-    @PutMapping("/")
+    @PutMapping("/update")
     @Transactional
     public ResponseEntity<Object> updateProductById(@RequestBody @Valid ProductEntity body){
         Optional<ProductEntity> product = this.productRepository.findById(body.getId());
+        System.out.println(product);
         if(product.isPresent()){
             ProductEntity productEntity = new ProductEntity(product.get().getId(),product.get().getName(),product.get().getUrlPhotoProduct(),product.get().getDescription(),product.get().getCategory(),
             product.get().getPrice(),product.get().getStock(),product.get().getCreatedAt());
