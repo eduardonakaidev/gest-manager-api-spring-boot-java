@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +24,6 @@ import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.GetByCate
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.GetByNameProductDTO;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.dto.ProductCreateRequestDTO;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.entities.ProductEntity;
-import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.http.middleware.verifyPriceFormat;
 import br.com.nestworld.gestmanagerFinancyProductApi.modules.Store.repositories.ProductRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -40,52 +38,41 @@ public class ProductController {
     @PostMapping("/create")
     public ResponseEntity<Object> createProduct(@RequestBody @Valid ProductCreateRequestDTO body) {
         
-        ProductEntity productAlreadyExists = this.productRepository.findByName(body.name());
-        // verificando se o produto ja foi criado anteriormente
-        if (productAlreadyExists == null) {
-            String priceRegex = body.price();
-            // Verifica se a string tem pelo menos dois caracteres
-            if (verifyPriceFormat.isNumeric(priceRegex)) {
-                // Verifica se a string tem pelo menos dois caracteres
-                if (priceRegex.length() >= 2) {
-                    // Obtém os dois últimos caracteres
-                    String ultimosDoisNumeros = priceRegex.substring(priceRegex.length() - 2);
-    
-                    // Obtém a parte da string excluindo os dois últimos caracteres
-                    String parteInicial = priceRegex.substring(0, priceRegex.length() - 2);
-    
-                    // Adiciona um ponto antes dos dois últimos números
-                    priceRegex = parteInicial + "." + ultimosDoisNumeros;
-    
-           
-                } else {
-                  return ResponseEntity.badRequest().body("A string price deve ter pelo menos dois caracteres. Exemplo : 0000 para ficar 00.00");
-                }
-            } else {
-                System.out.println("A string deve conter apenas números.");
-            }
-            String stockverify = body.stock();
-            if (!verifyPriceFormat.isInteger(stockverify)) {
-                // Realiza as operações necessárias, se desejado
-                
-                return ResponseEntity.badRequest().body("A string stock não contém apenas números inteiros."+ stockverify);
-            } else {
-             //continua o codigo por so conter numeros inteiros
-       
-             // repassa todas informações para o produto
-            ProductEntity productEntity = new ProductEntity();
-            productEntity.setName(body.name());
-            productEntity.setCategory(body.category());
-            productEntity.setDescription(body.description());
-            productEntity.setPrice(priceRegex);
-            productEntity.setStock(stockverify);
-            // salva o produto
-            var result = this.productRepository.save(productEntity);
-            return ResponseEntity.ok().body(result);
-            }
-        }
-        return ResponseEntity.badRequest().body(productAlreadyExists);
+        // verificando se o usuario nao ta passando uma string com espaços em branco exemplo: "    " 
+        body.name().trim();
+        body.category().trim();
+        body.description().trim();
+        if(body.name().isBlank()|| body.name().isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("nome esta em branco ou null");
 
+        }if(body.category().isBlank()||body.category().isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("categoria esta em branco ou null");
+        }
+        if(body.description().isBlank()||body.description().isEmpty()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("description esta em branco ou null");
+        }
+
+    ProductEntity productAlreadyExists = this.productRepository.findByName(body.name());
+    // verificando se o produto ja foi criado anteriormente
+    if(productAlreadyExists==null)
+    {
+        // repassa todas informações para o produto
+        ProductEntity productEntity = new ProductEntity();
+        productEntity.setName(body.name());
+        productEntity.setCategory(body.category());
+        productEntity.setDescription(body.description());
+        productEntity.setPrice(body.price());
+        productEntity.setStock(body.stock());
+        // salva o produto
+        var result = this.productRepository.save(productEntity);
+        return ResponseEntity.ok().body(result);
+    }
+
+    else
+    {
+
+        return ResponseEntity.badRequest().body(productAlreadyExists);
+    }
     }
 
     @GetMapping("/allProducts")
@@ -162,6 +149,7 @@ public class ProductController {
         }
         return ResponseEntity.ok().body(listaSemDuplicatas);
     }
+
     @PutMapping("/")
     @Transactional
     public ResponseEntity<Object> updateProductById(@RequestBody @Valid ProductEntity body){
@@ -181,10 +169,10 @@ public class ProductController {
              if(!body.getDescription().isBlank()){
                 productEntity.setDescription(body.getDescription());
             }
-             if(!body.getPrice().isBlank()){
+             if(body.getPrice()!= null){
                 productEntity.setPrice(body.getPrice());
             }
-             if(!body.getStock().isBlank()){
+             if(body.getStock()!= null){
                 productEntity.setStock(body.getStock());
             }
             return ResponseEntity.status(HttpStatus.OK).body(productEntity);
@@ -193,18 +181,16 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable(value = "id") UUID id){
+    public ResponseEntity<Object> delete(@PathVariable(value = "id") UUID id) {
         Optional<ProductEntity> productExists = this.productRepository.findById(id);
-        if(productExists.isPresent()){
+        if (productExists.isPresent()) {
             this.productRepository.delete(productExists.get());
             return ResponseEntity.status(HttpStatus.OK).build();
-        }else{
+        } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("id invalido // produto não encontrado");
         }
     }
 
 }
-
-
- 
