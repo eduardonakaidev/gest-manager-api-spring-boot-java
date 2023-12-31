@@ -38,24 +38,24 @@ public class ProductController {
     @PostMapping("/create")
     public ResponseEntity<Object> createProduct(@RequestBody @Valid ProductCreateRequestDTO body) {
         
-        // verificando se o usuario nao ta passando uma string com espaços em branco exemplo: "    " 
-        body.name().trim();
-        body.category().trim();
-        body.description().trim();
-        if(body.name().isBlank()|| body.name().isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("nome esta em branco ou null");
-
-        }if(body.category().isBlank()||body.category().isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("categoria esta em branco ou null");
-        }
-        if(body.description().isBlank()||body.description().isEmpty()){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("description esta em branco ou null");
-        }
+       
 
     ProductEntity productAlreadyExists = this.productRepository.findByName(body.name());
     // verificando se o produto ja foi criado anteriormente
     if(productAlreadyExists==null)
-    {
+    { // verificando se o usuario nao ta passando uma string com espaços em branco exemplo: "    " 
+        body.name().trim();
+        body.category().trim();
+        body.description().trim();
+        if(body.name().isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("nome esta em branco ou null");
+
+        }if(body.category().isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("categoria esta em branco ou null");
+        }
+        if(body.description().isBlank()){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("description esta em branco ou null");
+        }
         // repassa todas informações para o produto
         ProductEntity productEntity = new ProductEntity();
         productEntity.setName(body.name());
