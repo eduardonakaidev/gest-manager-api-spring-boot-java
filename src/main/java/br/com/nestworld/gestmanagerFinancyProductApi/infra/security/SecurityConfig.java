@@ -35,7 +35,7 @@ public class SecurityConfig {
         .requestMatchers(HttpMethod.GET,"/products/allCategory").hasRole("USER")
         .requestMatchers(HttpMethod.POST,"/products/getByName").hasRole("USER")
         .requestMatchers(HttpMethod.POST,"/products/getByCategory").hasRole("USER")
-        .requestMatchers(HttpMethod.PUT,"/products/update").hasRole("USER")
+        .requestMatchers(HttpMethod.PUT, "/products/update").hasRole("USER")
          .requestMatchers(HttpMethod.DELETE,"/products/**").hasRole("USER")
           .requestMatchers(HttpMethod.DELETE,"/products/{id}").hasRole("USER")
         .anyRequest().authenticated()
