@@ -149,36 +149,47 @@ public class ProductController {
     }
 
     @PutMapping("/update")
-    @Transactional
-    public ResponseEntity<Object> updateProductById(@RequestBody @Valid ProductEntity body){
-        Optional<ProductEntity> product = this.productRepository.findById(body.getId());
-        System.out.println(product);
-        if(product.isPresent()){
-            ProductEntity productEntity = product.get();
-            if(!body.getName().isBlank()){
-                productEntity.setName(body.getName());
-            }
-            if(!body.getUrlPhotoProduct().isBlank()){
-                productEntity.setUrlPhotoProduct(body.getUrlPhotoProduct());
-            }
-             if(!body.getCategory().isBlank()){
-                productEntity.setCategory(body.getCategory());
-            }
-             if(!body.getDescription().isBlank()){
-                productEntity.setDescription(body.getDescription());
-            }
-             if(body.getPrice()!= null){
-                productEntity.setPrice(body.getPrice());
-            }
-             if(body.getStock()!= null){
-                productEntity.setStock(body.getStock());
-            }
-            return ResponseEntity.status(HttpStatus.OK).body(productEntity);
+@Transactional
+public ResponseEntity<Object> updateProductById(@RequestBody @Valid ProductEntity body) {
+    Optional<ProductEntity> productOptional = this.productRepository.findById(body.getId());
+
+    if (productOptional.isPresent()) {
+        ProductEntity productEntity = productOptional.get();
+
+        if (body.getName() != null && !body.getName().isBlank()) {
+            productEntity.setName(body.getName());
         }
-        else{
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("produto não encontrado ,verifique o id passado no parametro");
+
+        if (body.getUrlPhotoProduct() != null && !body.getUrlPhotoProduct().isBlank()) {
+            productEntity.setUrlPhotoProduct(body.getUrlPhotoProduct());
         }
+
+        if (body.getCategory() != null && !body.getCategory().isBlank()) {
+            productEntity.setCategory(body.getCategory());
+        }
+
+        if (body.getDescription() != null && !body.getDescription().isBlank()) {
+            productEntity.setDescription(body.getDescription());
+        }
+
+        if (body.getPrice() != null) {
+            productEntity.setPrice(body.getPrice());
+        }
+
+        if (body.getStock() != null) {
+            productEntity.setStock(body.getStock());
+        }
+
+        // Salvar o produto atualizado no banco de dados
+        this.productRepository.save(productEntity);
+
+        // Retornar uma resposta com o produto atualizado
+        return ResponseEntity.ok(productEntity);
+    } else {
+        // Retornar resposta indicando que o produto não foi encontrado
+        return ResponseEntity.notFound().build();
     }
+}
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@PathVariable(value = "id") UUID id) {
